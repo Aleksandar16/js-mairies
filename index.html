@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        fetch(
+            'https://data.strasbourg.eu/api/explore/v2.1/catalog/datasets/duree-dattente-aux-mairies-en-temps-reel/records?limit=10')
+            .then(function(res) {
+                return res.json();
+            })
+            .then(function(donnees) {
+                console.log(donnees['results']);
+                donnees['results']
+                    .filter((donnee) => donnee.isopen == 1 && donnee.realtimestatus === "GREEN")
+                    .sort((a, b) => {
+                        if (a.averagewaitingtime === b.averagewaitingtime) {
+                            return a.name.localeCompare(b.name);
+                        }
+                        return a.averagewaitingtime - b.averagewaitingtime;
+                    })
+                    .map(donnee => {
+                        return {
+                            h2: donnee.name,
+                            p: donnee.averagewaitingtime === null ? "Pas de valeur" : donnee.averagewaitingtime
+                        }
+                    })
+                    .map(donnee => {
+                        return {
+                            baliseH2: document.createElement('h2'),
+                            baliseP: document.createElement('p'),
+                            h2: donnee.h2,
+                            p: donnee.p
+                        }
+                    })
+                    .map(donnee => {
+                        donnee.baliseH2.textContent = donnee.h2;
+                        donnee.baliseP.textContent = donnee.p;
+                        return [
+                            donnee.baliseH2,
+                            donnee.baliseP,
+                        ]
+                    })
+                    .map(function(donnee) {
+                        const div = document.createElement('div');
+                        div.appendChild(donnee[0]);
+                        div.appendChild(donnee[1]);
+                        return div;
+                    })
+                    .forEach(function(div) {
+                        document.body.appendChild(div);
+                    })
+                    const totalMinutes = donnees['results'].reduce(function(acc, donnee) {
+                        let data = JSON.parse(donnee.dayschedule)
+                        return acc + data[0].openingMinute;
+                    }, 0);
+                })
+            .catch(function(error) {
+                console.error("Erreur lors de la récupération des données :", error);
+            });
+    </script>
+</body>
+</html>
