@@ -8,7 +8,7 @@
 <body>
     <script>
         fetch(
-            'https://data.strasbourg.eu/api/explore/v2.1/catalog/datasets/duree-dattente-aux-mairies-en-temps-reel/records?limit=10')
+            'https://data.strasbourg.eu/api/explore/v2.1/catalog/datasets/duree-dattente-aux-mairies-en-temps-reel/records?limit=20')
             .then(function(res) {
                 return res.json();
             })
@@ -57,6 +57,11 @@
                         let data = JSON.parse(donnee.dayschedule)
                         return acc + data[0].openingMinute;
                     }, 0);
+                    div2 = document.createElement('div');
+                    let totalMinutesValue = document.createElement('p');
+                    totalMinutesValue.textContent = 'Nombre de minutes d\'ouverture global pour toutes les mairies : ' + totalMinutes;
+                    div2.appendChild(totalMinutesValue);
+                    document.body.appendChild(div2);
                 })
             .catch(function(error) {
                 console.error("Erreur lors de la récupération des données :", error);
